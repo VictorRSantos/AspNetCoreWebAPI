@@ -1,0 +1,4 @@
+Criar uma solução => dotnet new sln -n SmartSchool
+
+Adicionar o projeto na Solução criada
+=> dotnet sln SmartSchool.sln add SmartSchool.WebAPI/SmartSchool.WebAPI.csproj
