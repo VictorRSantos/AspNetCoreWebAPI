@@ -11,18 +11,22 @@ namespace SmartSchool.WebAPI.Controllers
     public class ProfessorController : ControllerBase
     {
 
-        private readonly SmartContext _context;
 
-        public ProfessorController(SmartContext context)
+        private readonly IRepository _repo;
+
+        public ProfessorController(IRepository repo)
         {
-            _context = context;
+            _repo = repo;
+
         }
 
 
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(_context.Professores);
+            var result = _repo.GetAllProfessores(true);
+
+            return Ok(result);
         }
 
 
@@ -30,7 +34,7 @@ namespace SmartSchool.WebAPI.Controllers
         public IActionResult GetPorId(int id)
         {
 
-            var professor = _context.Professores.FirstOrDefault(x => x.Id == id);
+            var professor = _repo.GetProfessorById(id, false);
 
             if (professor == null) return BadRequest("Professor não encontrado");
 
@@ -42,7 +46,7 @@ namespace SmartSchool.WebAPI.Controllers
         [HttpGet("ByName")]
         public IActionResult GetByNameQueryString(string nome)
         {
-            var professor = _context.Professores.FirstOrDefault(x => x.Nome.Contains(nome));
+            var professor = _repo.GetAllProfessores().FirstOrDefault(x => x.Nome.Contains(nome));
 
             if (professor == null) return BadRequest("Professo não encontrado");
 
@@ -55,44 +59,59 @@ namespace SmartSchool.WebAPI.Controllers
         public IActionResult Post(Professor professor)
         {
 
-            _context.Add(professor);
+            _repo.Add(professor);
 
 
-            _context.SaveChanges();
 
+            if (_repo.SaveChanges())
+            {
 
-            return Ok(professor);
+                return Ok(professor);
+            }
+
+            return BadRequest("Professor não cadastrado");
         }
 
 
         [HttpPut("{id}")]
         public IActionResult Put(int id, Professor professor)
         {
-            var prof = _context.Professores.AsNoTracking().FirstOrDefault(x => x.Id == id);
+            var prof = _repo.GetProfessorById(id, false);
 
             if (prof == null) return BadRequest("Professo não encontrado");
 
-            _context.Update(professor);
+            _repo.Update(professor);
 
-            _context.SaveChanges();
+            if (_repo.SaveChanges())
+            {
+                return Ok(professor);
 
-            return Ok(professor);
+            }
+
+            return BadRequest("Professor não atualizado");
+
+
+
 
         }
 
         [HttpPatch("{id}")]
         public IActionResult Patch(int id, Professor professor)
         {
-            var prof = _context.Professores.AsNoTracking().FirstOrDefault(x => x.Id == id);
+            var prof = _repo.GetProfessorById(id, false);
 
-            if(prof is null) return BadRequest("Professor não encontrado");
+            if (prof is null) return BadRequest("Professor não encontrado");
 
-            _context.Update(professor);
+            _repo.Update(professor);
 
-            _context.SaveChanges();
+            if (_repo.SaveChanges())
+            {
+                return Ok(professor);
 
-            return Ok(professor);
+            }
 
+
+            return BadRequest("Professor não atualizado");
 
         }
 
@@ -100,15 +119,20 @@ namespace SmartSchool.WebAPI.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var professor = _context.Professores.FirstOrDefault(x => x.Id == id);
+            var professor = _repo.GetProfessorById(id);
 
-            if(professor == null) return BadRequest("Professor não encontrado");
+            if (professor == null) return BadRequest("Professor não encontrado");
 
-            _context.Remove(professor);
+            _repo.Delete(professor);
 
-            _context.SaveChanges();
+            if (_repo.SaveChanges())
+            {
+                return Ok("Professor deletado");
 
-            return Ok();
+            }
+
+            return BadRequest("professor não deletado");
+
 
         }
 

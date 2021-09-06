@@ -33,12 +33,43 @@ namespace SmartSchool.WebAPI
                 context => context.UseSqlite(Configuration.GetConnectionString("Default"))
             );
 
-            services.AddControllers();
 
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "SmartSchool.WebAPI", Version = "v1" });
-            });
+            /* ADDSingleton
+            Cria uma únioca instância do serviço quando é solicitado pela
+            primeira vez e reutiliza essa mesma instância em todos os locais
+            em que esse serviço é necessário.
+            ****Problema
+            Ele compartilha a memoria.            
+
+            services.AddSingleton<IRepository, Repository>();
+            */
+
+            /* AddTransient
+            Sempre gerará um nova instância para cada item encontrado que possua
+            tal dependência, ou seja, se houver 5 dependências serão 5 instâncias diferentes
+            
+            
+            services.AddTransient<IRepository, Repository>();
+            */
+
+
+            /*AddScope
+            Essa é diferente da Transient que garante que uma requisição
+            seja criada um instância de uma classe onde se houver outras
+            dependências, seja utilizada essa única instância pra todas,
+            renovando somente nas requisições subsequentes, mas mantendo
+            essa obrigatoriedade
+            */
+
+            services.AddScoped<IRepository, Repository>();
+
+
+
+            services.AddControllers().AddNewtonsoftJson(
+                opt => opt.SerializerSettings.ReferenceLoopHandling = 
+                Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
+          
             
         }
 
@@ -48,8 +79,8 @@ namespace SmartSchool.WebAPI
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SmartSchool.WebAPI v1"));
+                // app.UseSwagger();
+                // app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SmartSchool.WebAPI v1"));
             }
 
             // app.UseHttpsRedirection();
