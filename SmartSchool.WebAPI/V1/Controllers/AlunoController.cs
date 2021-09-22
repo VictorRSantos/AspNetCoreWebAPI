@@ -4,14 +4,19 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.WebAPI.Data;
-using SmartSchool.WebAPI.Dtos;
+using SmartSchool.WebAPI.V1.Dtos;
 using SmartSchool.WebAPI.Models;
 
-namespace SmartSchool.WebAPI.Controllers
+
+namespace SmartSchool.WebAPI.V1.Controllers
 {
 
+    /// <summary>
+    /// Versão 1 do meu controlador de aluno
+    /// </summary>
     [ApiController]
-    [Route("api/[controller]")]//http://localhost:5000/api/Aluno
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]//http://localhost:5000/api/Aluno
     public class AlunoController : ControllerBase
     {
       
@@ -19,6 +24,11 @@ namespace SmartSchool.WebAPI.Controllers
 
         private readonly IMapper _mapper;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="repo"></param>
+        /// <param name="mapper"></param>
         public AlunoController(IRepository repo, IMapper mapper)
         {
             _mapper = mapper;
@@ -27,6 +37,10 @@ namespace SmartSchool.WebAPI.Controllers
         }
 
 
+        /// <summary>
+        /// Método responsável para retornar todos os meus alunos
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public IActionResult Get()
         {
@@ -38,8 +52,14 @@ namespace SmartSchool.WebAPI.Controllers
         }
 
 
+
         #region Diferenciar rota do Get passando somente um parametro
 
+        /// <summary>
+        /// Método responsável por retornar apenas um Aluno por meio do Código ID
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
         //api/aluno/1
         //http://localhost:5000/api/Aluno/1
         [HttpGet("{Id:int}")]
@@ -56,20 +76,11 @@ namespace SmartSchool.WebAPI.Controllers
         }
 
 
-        // //api/aluno/1
-        // //http://localhost:5000/api/Aluno/Marta
-        // [HttpGet("{Nome}")]
-        // public IActionResult GetByName(string nome)
-        // {
-        //     var aluno = _repo.GetAllAlunos().FirstOrDefault(a => a.Nome.Contains(nome));
-
-        //     if (aluno is null) return BadRequest("O Aluno não foi encontrado.");
-
-        //     return Ok(aluno);
-        // }
-
-        //api/Aluno/ById/1
-        //http://localhost:5000/api/Aluno/ById/1
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("ById/{Id}")]
         public IActionResult GetByIdVersao2(int id)
         {
@@ -84,9 +95,12 @@ namespace SmartSchool.WebAPI.Controllers
 
         #endregion
 
-        //Passar Parametro via QueryString
-        #region Passar Parametro via QueryString
-
+       
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         //http://localhost:5000/api/Aluno/ById?Id=1
         [HttpGet("ById")]
         public IActionResult GetByIdQueryString(int id)
@@ -99,6 +113,12 @@ namespace SmartSchool.WebAPI.Controllers
             return Ok(aluno);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="nome"></param>
+        /// <param name="sobrenome"></param>
+        /// <returns></returns>
         //http://localhost:5000/api/Aluno/ByName?nome=Marta&sobrenome=Kent
         [HttpGet("ByName")]
         public IActionResult GetByNameQueryStrin(string nome, string sobrenome)
@@ -110,12 +130,14 @@ namespace SmartSchool.WebAPI.Controllers
 
             return Ok(aluno);
         }
-
-        #endregion
-
+  
 
         #region POST
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         public IActionResult Post(AlunoRegistrarDto model)
         {
@@ -138,7 +160,12 @@ namespace SmartSchool.WebAPI.Controllers
 
 
         #region PUT
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPut("{id}")]
         public IActionResult Put(int id, AlunoRegistrarDto model)
         {
@@ -161,10 +188,13 @@ namespace SmartSchool.WebAPI.Controllers
         }
 
         #endregion
-
-
-        #region PATCH
-
+      
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPatch("{id}")]
         public IActionResult Patch(int id, AlunoRegistrarDto model)
         {
@@ -184,12 +214,12 @@ namespace SmartSchool.WebAPI.Controllers
             return BadRequest("Aluno não atualizado");
         }
 
-        #endregion
-
-
-
         #region DELETE
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
