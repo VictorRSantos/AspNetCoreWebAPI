@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.WebAPI.Models;
 
 namespace SmartSchool.WebAPI.Data
@@ -17,6 +18,7 @@ namespace SmartSchool.WebAPI.Data
 
 
         #region Aluno
+           Task<Aluno[]> GetAllAlunosAsync(bool includeProfessor = false);
             Aluno[] GetAllAlunos(bool includeProfessor = false);
 
             Aluno[] GetAllAlunosByDisciplinaId(int disciplinaId, bool includeProfessor = false);
