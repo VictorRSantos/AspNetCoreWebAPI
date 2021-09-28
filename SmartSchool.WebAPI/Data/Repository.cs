@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using SmartSchool.WebAPI.Helpers;
 using SmartSchool.WebAPI.Models;
 
 namespace SmartSchool.WebAPI.Data
@@ -39,9 +40,8 @@ namespace SmartSchool.WebAPI.Data
         #endregion
 
 
-        #region Metodos Aluno
-        public async Task<Aluno[]> GetAllAlunosAsync(bool includeProfessor = false)
-         {
+        public async Task<PageList<Aluno>> GetAllAlunosAsync(PageParams pageParams, bool includeProfessor = false)
+        {
             IQueryable<Aluno> query = _context.Alunos;
 
             if (includeProfessor)
@@ -52,9 +52,21 @@ namespace SmartSchool.WebAPI.Data
             }
             query = query.AsNoTracking().OrderBy(a => a.Id);
 
-            return await query.ToArrayAsync();
-        }
+            // return await query.ToListAsync();
 
+            if (!string.IsNullOrWhiteSpace(pageParams.Nome))
+                query = query.Where(aluno => aluno.Nome.ToUpper().Contains(pageParams.Nome.ToUpper()) || aluno.Sobrenome.ToUpper().Contains(pageParams.Nome.ToUpper()));
+
+            if (pageParams.Matricula > 0)
+                query = query.Where(aluno => aluno.Matricula == pageParams.Matricula);
+
+            
+            if (pageParams.Ativo != null)
+                query = query.Where(aluno => aluno.Ativo == (pageParams.Ativo != 0));
+
+
+            return await PageList<Aluno>.CreateAsync(query, pageParams.PageNumber, pageParams.PageSize);
+        }
 
         public Aluno[] GetAllAlunos(bool includeProfessor = false)
         {
@@ -104,7 +116,7 @@ namespace SmartSchool.WebAPI.Data
 
 
 
-        #endregion
+
 
 
         #region Metodos Professor
@@ -118,7 +130,7 @@ namespace SmartSchool.WebAPI.Data
             {
                 query = query.Include(p => p.Disciplinas).ThenInclude(d => d.AlunosDisciplinas).ThenInclude(ad => ad.Aluno);
 
-             }
+            }
 
             query = query.AsNoTracking().OrderBy(p => p.Id);
 
@@ -129,7 +141,7 @@ namespace SmartSchool.WebAPI.Data
         {
             IQueryable<Professor> query = _context.Professores;
 
-            if(includeAlunos)
+            if (includeAlunos)
             {
                 query = query.Include(p => p.Disciplinas).ThenInclude(d => d.AlunosDisciplinas).ThenInclude(ad => ad.Aluno);
             }
@@ -146,13 +158,13 @@ namespace SmartSchool.WebAPI.Data
         {
             IQueryable<Professor> query = _context.Professores;
 
-            if(includeProfessor)
+            if (includeProfessor)
             {
                 query = query.Include(p => p.Disciplinas).ThenInclude(d => d.AlunosDisciplinas).ThenInclude(ad => ad.Aluno);
             }
 
             query = query.AsNoTracking().OrderBy(a => a.Id).Where(professor => professor.Id == professorId);
-            
+
 
             return query.FirstOrDefault();
 
